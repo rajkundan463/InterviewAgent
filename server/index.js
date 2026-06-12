@@ -14,7 +14,7 @@ dotenv.config();
 const app = express();
 app.use(cors({
         origin: ["https://interviewagent-client-x1nn.onrender.com",
-            "https://interview-agent-amber.vercel.app/"],
+            "https://interview-agent-amber.vercel.app"],
         credentials: true,
     })
 );
