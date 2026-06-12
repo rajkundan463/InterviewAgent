@@ -12,30 +12,25 @@ import paymentRouter from "./routes/payment.route.js";
 dotenv.config();
 
 const app = express();
-
-// Render
-app.set("trust proxy", 1);
-
-app.use(
-  cors({
-    origin: "https://interviewagent-client-x1nn.onrender.com",
-    credentials: true,
-  })
+app.use(cors({
+        origin: "https://interviewagent-client-x1nn.onrender.com",
+        credentials: true,
+    })
 );
 
 app.use(express.json());
 app.use(cookieParser());
 
-// DEBUG LOGGER
+// For Log
 app.use((req, res, next) => {
-  console.log("\n========== REQUEST ==========");
-  console.log("Method:", req.method);
-  console.log("URL:", req.originalUrl);
-  console.log("Origin:", req.headers.origin);
-  console.log("Cookie Header:", req.headers.cookie);
-  console.log("Cookies:", req.cookies);
-  console.log("=============================\n");
-  next();
+    const start = Date.now();
+    res.on("finish", () => {
+        console.log(
+            `${req.method} ${req.originalUrl} ${res.statusCode} ${Date.now() - start}ms`
+        );
+    });
+
+    next();
 });
 
 app.use("/api/auth", authRouter);
@@ -45,7 +40,11 @@ app.use("/api/payment", paymentRouter);
 
 const PORT = process.env.PORT || 6000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  connectDb();
+app.listen(PORT, async () => {
+    try {
+        await connectDb();
+        console.log(`Server running on port ${PORT}`);
+    } catch (error) {
+        console.error("Database Connection Error:", error.message);
+    }
 });
