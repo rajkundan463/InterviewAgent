@@ -6,6 +6,7 @@ import api from "../utils/api"
 import { ServerUrl } from '../App';
 import { useDispatch } from 'react-redux';
 import { setUserData } from '../redux/userSlice';
+
 function Pricing() {
   const navigate = useNavigate()
   const [selectedPlan, setSelectedPlan] = useState("free");
@@ -56,169 +57,136 @@ function Pricing() {
     },
   ];
 
-
-
   const handlePayment = async (plan) => {
     try {
       setLoadingPlan(plan.id)
+      const amount =
+        plan.id === "basic" ? 100 :
+        plan.id === "pro" ? 500 : 0;
 
-      const amount =  
-      plan.id === "basic" ? 100 :
-      plan.id === "pro" ? 500 : 0;
-
-      const result = await api.post(ServerUrl + "/api/payment/order" , {
+      const result = await api.post(ServerUrl + "/api/payment/order", {
         planId: plan.id,
         amount: amount,
         credits: plan.credits,
-      },{withCredentials:true})
-      
+      }, { withCredentials: true })
 
       const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-      amount: result.data.amount,
-      currency: "INR",
-      name: "InterviewIQ.AI",
-      description: `${plan.name} - ${plan.credits} Credits`,
-      order_id: result.data.id,
-
-      handler:async function (response) {
-        const verifypay = await api.post(ServerUrl + "/api/payment/verify" ,response , {withCredentials:true})
-        dispatch(setUserData(verifypay.data.user))
-
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: result.data.amount,
+        currency: "INR",
+        name: "InterviewIQ.AI",
+        description: `${plan.name} - ${plan.credits} Credits`,
+        order_id: result.data.id,
+        handler: async function (response) {
+          const verifypay = await api.post(ServerUrl + "/api/payment/verify", response, { withCredentials: true })
+          dispatch(setUserData(verifypay.data.user))
           alert("Payment Successful 🎉 Credits Added!");
           navigate("/")
-
-      },
-      theme:{
-        color: "#10b981",
-      },
-
+        },
+        theme: { color: "#10b981" },
       }
 
       const rzp = new window.Razorpay(options)
       rzp.open()
-
       setLoadingPlan(null);
     } catch (error) {
-     console.log(error)
-     setLoadingPlan(null);
+      console.log(error)
+      setLoadingPlan(null);
     }
   }
 
-
-
   return (
-    <div className='min-h-screen bg-gradient-to-br from-gray-50 to-emerald-50 py-16 px-6'>
+    <div className='min-h-screen py-16 px-6' style={{background:'#0a0f1e'}}>
+      {/* Ambient */}
+      <div style={{
+        position:'fixed', top:0, left:0, right:0, bottom:0, pointerEvents:'none', zIndex:0,
+        background:'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(16,185,129,0.07) 0%, transparent 70%)'
+      }}/>
 
-      <div className='max-w-6xl mx-auto mb-14 flex items-start gap-4'>
+      <div style={{position:'relative', zIndex:1}}>
+        <div className='max-w-6xl mx-auto mb-16 flex items-start gap-4'>
+          <button onClick={() => navigate("/")} className='mt-2 p-3 rounded-full transition-all btn-ghost'>
+            <FaArrowLeft style={{color:'#94a3b8'}} />
+          </button>
+          <div className="text-center w-full">
+            <div className='text-xs font-bold tracking-widest mb-3' style={{color:'#10b981'}}>PRICING</div>
+            <h1 className="text-4xl font-bold" style={{color:'#f1f5f9', letterSpacing:'-0.02em'}}>
+              Choose Your <span className='text-gradient'>Plan</span>
+            </h1>
+            <p className="mt-3 text-lg" style={{color:'#64748b'}}>
+              Flexible pricing to match your interview preparation goals.
+            </p>
+          </div>
+        </div>
 
-        <button onClick={() => navigate("/")} className='mt-2 p-3 rounded-full bg-white shadow hover:shadow-md transition'>
-          <FaArrowLeft className='text-gray-600' />
-        </button>
+        <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto'>
+          {plans.map((plan) => {
+            const isSelected = selectedPlan === plan.id
+            return (
+              <motion.div key={plan.id}
+                whileHover={!plan.default && { scale: 1.03 }}
+                onClick={() => !plan.default && setSelectedPlan(plan.id)}
+                className={`relative rounded-3xl p-8 transition-all duration-300 ${plan.default ? "cursor-default" : "cursor-pointer"}`}
+                style={{
+                  background: isSelected ? 'rgba(16,185,129,0.06)' : 'rgba(15,22,41,0.9)',
+                  border: isSelected ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(255,255,255,0.07)',
+                  boxShadow: isSelected ? '0 0 40px rgba(16,185,129,0.12)' : '0 4px 24px rgba(0,0,0,0.3)'
+                }}>
 
-        <div className="text-center w-full">
-          <h1 className="text-4xl font-bold text-gray-800">
-            Choose Your Plan
-          </h1>
-          <p className="text-gray-500 mt-3 text-lg">
-            Flexible pricing to match your interview preparation goals.
-          </p>
+                {/* Badge */}
+                {plan.badge && (
+                  <div className="absolute top-6 right-6 text-xs px-3 py-1 rounded-full font-semibold"
+                    style={{background:'linear-gradient(135deg,#10b981,#059669)', color:'white'}}>
+                    {plan.badge}
+                  </div>
+                )}
+
+                {plan.default && (
+                  <div className="absolute top-6 right-6 text-xs px-3 py-1 rounded-full font-medium"
+                    style={{background:'rgba(255,255,255,0.06)', color:'#64748b', border:'1px solid rgba(255,255,255,0.08)'}}>
+                    Default
+                  </div>
+                )}
+
+                <h3 className="text-xl font-bold mb-4" style={{color:'#f1f5f9'}}>{plan.name}</h3>
+
+                <div className="mb-4">
+                  <span className="text-4xl font-extrabold text-gradient">{plan.price}</span>
+                  <p className="text-sm mt-1" style={{color:'#64748b'}}>{plan.credits} Credits included</p>
+                </div>
+
+                <p className="text-sm leading-relaxed mb-6" style={{color:'#64748b'}}>{plan.description}</p>
+
+                <div style={{height:'1px', background:'rgba(255,255,255,0.06)', marginBottom:'20px'}}/>
+
+                <div className="space-y-3 text-left">
+                  {plan.features.map((feature, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <FaCheckCircle style={{color:'#10b981', fontSize:'13px', flexShrink:0}} />
+                      <span className="text-sm" style={{color:'#94a3b8'}}>{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {!plan.default && (
+                  <button
+                    disabled={loadingPlan === plan.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!isSelected) { setSelectedPlan(plan.id) }
+                      else { handlePayment(plan) }
+                    }}
+                    className={`w-full mt-8 py-3 rounded-xl font-semibold text-sm transition-all ${
+                      isSelected ? 'btn-primary' : 'btn-ghost'
+                    }`}>
+                    {loadingPlan === plan.id ? "Processing..." : isSelected ? "Proceed to Pay" : "Select Plan"}
+                  </button>
+                )}
+              </motion.div>
+            )
+          })}
         </div>
       </div>
-
-
-      <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto'>
-
-        {plans.map((plan) => {
-          const isSelected = selectedPlan === plan.id
-
-          return (
-            <motion.div key={plan.id}
-              whileHover={!plan.default && { scale: 1.03 }}
-              onClick={() => !plan.default && setSelectedPlan(plan.id)}
-
-              className={`relative rounded-3xl p-8 transition-all duration-300 border 
-                ${isSelected
-                  ? "border-emerald-600 shadow-2xl bg-white"
-                  : "border-gray-200 bg-white shadow-md"
-                }
-                ${plan.default ? "cursor-default" : "cursor-pointer"}
-              `}
-            >
-
-              {/* Badge */}
-              {plan.badge && (
-                <div className="absolute top-6 right-6 bg-emerald-600 text-white text-xs px-4 py-1 rounded-full shadow">
-                  {plan.badge}
-                </div>
-              )}
-
-              {/* Default Tag */}
-              {plan.default && (
-                <div className="absolute top-6 right-6 bg-gray-200 text-gray-700 text-xs px-3 py-1 rounded-full">
-                  Default
-                </div>
-              )}
-
-              {/* Plan Name */}
-              <h3 className="text-xl font-semibold text-gray-800">
-                {plan.name}
-              </h3>
-
-              {/* Price */}
-              <div className="mt-4">
-                <span className="text-3xl font-bold text-emerald-600">
-                  {plan.price}
-                </span>
-                <p className="text-gray-500 mt-1">
-                  {plan.credits} Credits
-                </p>
-              </div>
-
-              {/* Description */}
-              <p className="text-gray-500 mt-4 text-sm leading-relaxed">
-                {plan.description}
-              </p>
-
-              {/* Features */}
-              <div className="mt-6 space-y-3 text-left">
-                {plan.features.map((feature, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <FaCheckCircle className="text-emerald-500 text-sm" />
-                    <span className="text-gray-700 text-sm">
-                      {feature}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {!plan.default &&
-                <button
-                disabled={loadingPlan === plan.id}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (!isSelected) {
-                      setSelectedPlan(plan.id)
-                    } else {
-                      handlePayment(plan)
-                    }
-                  }} className={`w-full mt-8 py-3 rounded-xl font-semibold transition ${isSelected
-                    ? "bg-emerald-600 text-white hover:opacity-90"
-                    : "bg-gray-100 text-gray-700 hover:bg-emerald-50"
-                    }`}>
-                  {loadingPlan === plan.id
-                    ? "Processing..."
-                    : isSelected
-                      ? "Proceed to Pay"
-                      : "Select Plan"}
-
-                </button>
-              }
-            </motion.div>
-          )
-        })}
-      </div>
-
     </div>
   )
 }

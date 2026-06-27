@@ -9,7 +9,7 @@ function InterviewPage() {
     const [interviewData,setInterviewData] = useState(null)
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen' style={{background:'#0a0f1e'}}>
         {step===1 && (
             <Step1SetUp onStart={(data)=>{
                 setInterviewData(data);
@@ -27,8 +27,6 @@ function InterviewPage() {
           {step===3 && (
             <Step3Report report={interviewData}/>
         )}
-
-      
     </div>
   )
 }

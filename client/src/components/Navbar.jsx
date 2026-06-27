@@ -25,94 +25,101 @@ function Navbar() {
 
     const handleLogout = async () => {
         try {
-            await signOut(auth); // Firebase logout
-
-            localStorage.removeItem("token"); // JWT remove
-
+            await signOut(auth);
+            localStorage.removeItem("token");
             dispatch(setUserData(null));
-
             setShowCreditPopup(false);
             setShowUserPopup(false);
-
             navigate("/");
-
         } catch (error) {
             console.log(error);
         }
     }
     return (
-        <div className='bg-[#f3f3f3] flex justify-center px-4 pt-6'>
+        <div className='flex justify-center px-4 pt-6' style={{background:'transparent'}}>
             <motion.div
                 initial={{ opacity: 0, y: -40 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className='w-full max-w-6xl bg-white rounded-[24px] shadow-sm border border-gray-200 px-8 py-4 flex justify-between items-center relative'>
-                <div className='flex items-center gap-3 cursor-pointer'>
-                    <div className='bg-black text-white p-2 rounded-lg'>
-                        <BsRobot size={18} />
+                className='w-full max-w-6xl rounded-2xl px-6 py-4 flex justify-between items-center relative'
+                style={{
+                    background: 'rgba(15,22,41,0.85)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    backdropFilter: 'blur(20px)',
+                    boxShadow: '0 4px 32px rgba(0,0,0,0.4)'
+                }}>
 
+                {/* Logo */}
+                <div className='flex items-center gap-3 cursor-pointer' onClick={() => navigate('/')}>
+                    <div className='p-2 rounded-xl flex items-center justify-center'
+                        style={{background:'linear-gradient(135deg,#10b981,#059669)', boxShadow:'0 4px 14px rgba(16,185,129,0.35)'}}>
+                        <BsRobot size={18} color="white"/>
                     </div>
-                    <h1 className='font-semibold hidden md:block text-lg'>InterviewIQ.AI</h1>
+                    <span className='font-bold hidden md:block text-base tracking-tight' style={{color:'#f1f5f9'}}>
+                        AceInterview<span style={{color:'#10b981'}}>.AI</span>
+                    </span>
                 </div>
 
-                <div className='flex items-center gap-6  relative'>
+                <div className='flex items-center gap-3 relative'>
+                    {/* Credits */}
                     <div className='relative'>
                         <button onClick={() => {
-                            if (!userData) {
-                                setShowAuth(true)
-                                return;
-                            }
+                            if (!userData) { setShowAuth(true); return; }
                             setShowCreditPopup(!showCreditPopup);
                             setShowUserPopup(false)
-                        }} className='flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full text-md hover:bg-gray-200 transition'>
-                            <BsCoin size={20} />
-                            {userData?.credits || 0}
+                        }} className='flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all'
+                        style={{background:'rgba(16,185,129,0.12)', border:'1px solid rgba(16,185,129,0.25)', color:'#34d399'}}>
+                            <BsCoin size={16} />
+                            {userData?.credits || 0} credits
                         </button>
 
                         {showCreditPopup && (
-                            <div className='absolute right-[-50px] mt-3 w-64 bg-white shadow-xl border border-gray-200 rounded-xl p-5 z-50'>
-                                <p className='text-sm text-gray-600 mb-4'>Need more credits to continue interviews?</p>
-                                <button onClick={() => navigate("/pricing")} className='w-full bg-black text-white py-2 rounded-lg text-sm'>Buy more credits</button>
-
-                            </div>
+                            <motion.div
+                                initial={{opacity:0,y:-8}} animate={{opacity:1,y:0}}
+                                className='absolute right-[-50px] mt-3 w-64 rounded-2xl p-5 z-50'
+                                style={{background:'#0f1629', border:'1px solid rgba(255,255,255,0.1)', boxShadow:'0 20px 60px rgba(0,0,0,0.6)'}}>
+                                <p className='text-sm mb-4' style={{color:'#94a3b8'}}>Need more credits to continue interviews?</p>
+                                <button onClick={() => navigate("/pricing")} className='w-full py-2.5 rounded-xl text-sm font-semibold transition-all btn-primary'>
+                                    Buy more credits
+                                </button>
+                            </motion.div>
                         )}
                     </div>
 
+                    {/* User */}
                     <div className='relative'>
                         <button
                             onClick={() => {
-                                if (!userData) {
-                                    setShowAuth(true)
-                                    return;
-                                }
+                                if (!userData) { setShowAuth(true); return; }
                                 setShowUserPopup(!showUserPopup);
                                 setShowCreditPopup(false)
-                            }} className='w-9 h-9 bg-black text-white rounded-full flex items-center justify-center font-semibold'>
-                            {userData ? userData?.name.slice(0, 1).toUpperCase() : <FaUserAstronaut size={16} />}
-
+                            }}
+                            className='w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-all'
+                            style={{background:'linear-gradient(135deg,#10b981,#059669)', color:'white', boxShadow:'0 2px 12px rgba(16,185,129,0.3)'}}>
+                            {userData ? userData?.name.slice(0, 1).toUpperCase() : <FaUserAstronaut size={15} />}
                         </button>
 
                         {showUserPopup && (
-                            <div className='absolute right-0 mt-3 w-48 bg-white shadow-xl border border-gray-200 rounded-xl p-4 z-50'>
-                                <p className='text-md text-blue-500 font-medium mb-1'>{userData?.name}</p>
-
-                                <button onClick={() => navigate("/history")} className='w-full text-left text-sm py-2 hover:text-black text-gray-600'>InterView History</button>
-                                <button onClick={handleLogout}
-                                    className='w-full text-left text-sm py-2 flex items-center gap-2 text-red-500'>
-                                    <HiOutlineLogout size={16} />
-                                    Logout</button>
-                            </div>
+                            <motion.div
+                                initial={{opacity:0,y:-8}} animate={{opacity:1,y:0}}
+                                className='absolute right-0 mt-3 w-52 rounded-2xl p-4 z-50'
+                                style={{background:'#0f1629', border:'1px solid rgba(255,255,255,0.1)', boxShadow:'0 20px 60px rgba(0,0,0,0.6)'}}>
+                                <p className='text-sm font-semibold mb-3' style={{color:'#10b981'}}>{userData?.name}</p>
+                                <div style={{height:'1px', background:'rgba(255,255,255,0.06)', marginBottom:'12px'}}/>
+                                <button onClick={() => navigate("/history")} className='w-full text-left text-sm py-2 transition-colors' style={{color:'#94a3b8'}}>
+                                    Interview History
+                                </button>
+                                <button onClick={handleLogout} className='w-full text-left text-sm py-2 flex items-center gap-2 transition-colors' style={{color:'#f87171'}}>
+                                    <HiOutlineLogout size={15} />
+                                    Sign out
+                                </button>
+                            </motion.div>
                         )}
                     </div>
-
                 </div>
-
-
-
             </motion.div>
 
             {showAuth && <AuthModel onClose={() => setShowAuth(false)} />}
-
         </div>
     )
 }
