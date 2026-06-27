@@ -1,9 +1,12 @@
 import axios from "axios";
 
+console.log("AI URL =>", process.env.AI_SERVICE_URL);
+
 const aiClient = axios.create({
     baseURL: process.env.AI_SERVICE_URL,
     timeout: 30000,
 });
+
 
 aiClient.interceptors.response.use(
     (response) => response,

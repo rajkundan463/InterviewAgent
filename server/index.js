@@ -14,7 +14,7 @@ dotenv.config();
 const app = express();
 app.use(cors({
     origin:
-        "https://interview-agent-amber.vercel.app"|| "http://localhost:3000",
+        "https://interview-agent-amber.vercel.app",
     credentials: true,
 }));
 
